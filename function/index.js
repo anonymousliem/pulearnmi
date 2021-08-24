@@ -23,3 +23,21 @@ const invoker = new gcp.cloudfunctions.FunctionIamMember("invoker", {
     role: "roles/cloudfunctions.invoker",
     member: "allUsers",
 });
+
+const helloService = new gcp.cloudrun.Service("hello", {
+    location,
+    template: {
+        spec: {
+            containers: [
+                { image: "gcr.io/cloudrun/hello" },
+            ],
+        },
+    },
+}, { dependsOn: enableCloudRun });
+
+const iamHello = new gcp.cloudrun.IamMember("hello-everyone", {
+    service: helloService.name,
+    location,
+    role: "roles/run.invoker",
+    member: "allUsers",
+});
